@@ -2,7 +2,16 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 let books = require("./booksdb.js");
 const regd_users = express.Router();
-let getBookDetailsByISBN = require("./auth_users.js").getBookDetailsByISBN;
+
+
+function getBookDetailsByISBN(isbn) {
+    for (let key in books) {
+        if (books[key].isbn === isbn) {
+            return books[key];
+        }
+    }
+    return null; // Return null if no book with matching ISBN is found
+}
 
 
 let users = [];
@@ -26,8 +35,8 @@ const authenticatedUser = (username,password)=>{
 
 //only registered users can login
 regd_users.post("/login", (req,res) => {
-    const username = req.body.username;
-    const password = req.body.password;
+    const username = req.query.username;
+    const password = req.query.password;
   
     if (!username || !password) {
         return res.status(404).json({message: "Error logging in"});
@@ -50,15 +59,48 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-    const reviews = req.query.reviews;
-    const user = req.params.username;
-    const isbn = req.params.isbn;
-    let bookToReview = getBookDetailsByISBN(isbn)
+    const review = req.query.review;
+    const username = req.query.username;
+    const isbn = req.query.ISBN;
+    const book = getBookDetailsByISBN(isbn);
 
-    if (reviews) {
-        books.push(books[isbn].reviews = reviews)
+    if (!username) {
+        return res.status(401).send('Unauthorized');
+    }
+    if (!isbn || !review) {
+        return res.status(400).send('ISBN and review are required');
+    }
+
+     // Check if user has already posted a review for the same ISBN
+     if (book.reviews[username]) {
+        // Modify existing review
+        book.reviews = review;
+        res.send(`Review modified for ISBN ${isbn}`);
+    } else {
+        // Add new review
+        if (!book) {
+            book = {};
+        }
+        book.reviews = review;
+        res.send(`New review added for ISBN ${isbn}`);
     }
 });
+
+// Delete a book review
+regd_users.delete("/auth/review/:isbn", (req, res) => {
+    const isbn = req.query.ISBN;
+    const bookByISBN = getBookDetailsByISBN(isbn);
+    const username = req.query.username;
+
+    if (bookByISBN.reviews[username]) {
+        delete bookByISBN.reviews[username];
+        res.send(`Book review deleted for ${bookByISBN.title}.`)
+    } else {
+        res.status(400).send('Book not found.')
+    }
+        })
+
+
 
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
