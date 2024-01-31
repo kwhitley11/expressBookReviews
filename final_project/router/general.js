@@ -70,26 +70,57 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-    res.send(JSON.stringify(books));
+public_users.get('/', async function (req, res) {
+    try {
+        // Simulate an asynchronous operation (can be replaced with a real async operation)
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        //do not need axios bc requests are all for internal server
+        res.send(JSON.stringify(books));
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
+
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
+public_users.get('/isbn/:isbn', async function (req, res) {
     const isbn = req.params.isbn;
-    res.send(getBookDetailsByISBN(isbn));
-})
+    try {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        //do not need axios bc requests are all for internal server
+        res.send(getBookDetailsByISBN(isbn));
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
   
+
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
+public_users.get('/author/:author', async function (req, res) {
     const author = req.params.author;
-    res.send(getBookDetailsByAuthor(author));
+    try {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        //do not need axios bc requests are all for internal server
+        res.send(getBookDetailsByAuthor(author));
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error')
+    }
 });
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
+public_users.get('/title/:title', async function (req, res) {
     const title = req.params.title;
-    res.send(getBookDetailsByTitle(title));
+    try {
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        //do not need axios bc requests are all for internal server
+        res.send(getBookDetailsByTitle(title));
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
 });
 
 //  Get book review
